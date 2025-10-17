@@ -25,12 +25,13 @@ model User {
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
+  description String
+  techInfo   Json
   price       Float
-  imageUrl    String?
-  relatedImages String[]  // Array of image URLs
+  imageUrl    String
+  relatedImages String[]  
   isOffer  Boolean  @default(false)
-  priceOffer Float?   // Discounted price if isOffer is true
+  priceOffer Float?   
   popularProduct Boolean  @default(false)
   comments   Comment[]
 }
