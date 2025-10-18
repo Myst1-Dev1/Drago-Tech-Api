@@ -1,60 +1,56 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   IsString,
-  IsNotEmpty,
-  IsOptional,
   IsNumber,
-  IsBoolean,
+  IsOptional,
   IsArray,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
-export class TechInfoDto {
+class TechInfoItem {
   @IsString()
-  @IsNotEmpty()
   techInfoTitle: string;
 
   @IsString()
-  @IsNotEmpty()
   techInfoValue: string;
 }
 
 export class CreateProductDto {
   @IsString()
-  @IsNotEmpty()
   name: string;
 
   @IsString()
-  @IsNotEmpty()
   description: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TechInfoDto)
-  techInfo?: TechInfoDto[];
-
+  // 🔹 Converte "90" (string) → 90 (number)
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  @IsNotEmpty()
   price: number;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  imageUrl: string;
+  imageUrl?: string;
 
+  // 🔹 Faz o parse automático do JSON vindo como string
+  @IsOptional()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TechInfoItem)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
+  techInfo?: TechInfoItem[];
+
   @IsOptional()
+  @IsArray()
   relatedImages?: string[];
-
-  @IsBoolean()
-  @IsOptional()
-  isOffer?: boolean;
-
-  @IsNumber()
-  @IsOptional()
-  priceOffer?: number;
-
-  @IsBoolean()
-  @IsOptional()
-  popularProduct?: boolean;
 }
