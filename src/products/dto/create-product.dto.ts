@@ -24,7 +24,6 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
-  // 🔹 Converte "90" (string) → 90 (number)
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   price: number;
@@ -33,7 +32,6 @@ export class CreateProductDto {
   @IsString()
   imageUrl?: string;
 
-  // 🔹 Faz o parse automático do JSON vindo como string
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

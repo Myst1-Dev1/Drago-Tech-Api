@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import {
@@ -6,10 +7,13 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Delete,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  Patch,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/public.decorator';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -47,10 +52,8 @@ export class ProductsController {
       throw new BadRequestException('Main image is required');
     }
 
-    // 🔹 Upload da imagem principal
     const uploadedMain = await this.fileUploadService.uploadImage(mainImage);
 
-    // 🔹 Parse do techInfo
     let techInfoParsed: { techInfoTitle: string; techInfoValue: string }[] = [];
     if (createProductDto.techInfo) {
       if (typeof createProductDto.techInfo === 'string') {
@@ -60,7 +63,6 @@ export class ProductsController {
       }
     }
 
-    // 🔹 Upload das imagens relacionadas
     const relatedFiles = files.relatedImages || [];
     const uploadedRelated = relatedFiles.length
       ? await Promise.all(
@@ -68,10 +70,58 @@ export class ProductsController {
         )
       : [];
 
-    // 🔹 Cria o produto
     return this.productsService.create(
       createProductDto,
       uploadedMain.secure_url,
+      uploadedRelated.map((u) => u.secure_url),
+      techInfoParsed,
+    );
+  }
+
+  @Patch(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'image', maxCount: 1 },
+      { name: 'relatedImages', maxCount: 5 },
+    ]),
+  )
+  async update(
+    @UploadedFiles()
+    files: {
+      image?: Express.Multer.File[];
+      relatedImages?: Express.Multer.File[];
+    },
+    @Body() updateProductDto: UpdateProductDto,
+    @Param('id') id: string,
+  ) {
+    const mainImage = files.image?.[0];
+    let uploadedMainUrl: string | null | any = null;
+
+    if (mainImage) {
+      const uploadedMain = await this.fileUploadService.uploadImage(mainImage);
+      uploadedMainUrl = uploadedMain.secure_url;
+    }
+
+    let techInfoParsed: { techInfoTitle: string; techInfoValue: string }[] = [];
+    if (updateProductDto.techInfo) {
+      if (typeof updateProductDto.techInfo === 'string') {
+        techInfoParsed = JSON.parse(updateProductDto.techInfo);
+      } else {
+        techInfoParsed = updateProductDto.techInfo;
+      }
+    }
+
+    const relatedFiles = files.relatedImages || [];
+    const uploadedRelated = relatedFiles.length
+      ? await Promise.all(
+          relatedFiles.map((file) => this.fileUploadService.uploadImage(file)),
+        )
+      : [];
+
+    return this.productsService.update(
+      +id,
+      updateProductDto,
+      uploadedMainUrl,
       uploadedRelated.map((u) => u.secure_url),
       techInfoParsed,
     );
@@ -81,5 +131,16 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @Public()
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.productsService.findById(+id);
+  }
+
+  @Delete(':id')
+  deleteProduct(@Param('id') id: string) {
+    return this.productsService.deleteProduct(+id);
   }
 }
