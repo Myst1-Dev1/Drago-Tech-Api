@@ -23,6 +23,7 @@ import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/public.decorator';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -142,5 +143,13 @@ export class ProductsController {
   @Delete(':id')
   deleteProduct(@Param('id') id: string) {
     return this.productsService.deleteProduct(+id);
+  }
+
+  @Post('comments/:id')
+  async createComment(
+    @Param('id') id: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return this.productsService.createComment(+id, createCommentDto);
   }
 }

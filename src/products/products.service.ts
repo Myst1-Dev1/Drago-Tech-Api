@@ -4,6 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class ProductsService {
@@ -66,12 +67,13 @@ export class ProductsService {
   }
 
   async findAll() {
-    return await this.prisma.product.findMany();
+    return await this.prisma.product.findMany({ include: { comments: true } });
   }
 
   async findById(id: number) {
     const productId = await this.prisma.product.findUnique({
       where: { id },
+      include: { comments: true },
     });
 
     if (!productId) {
@@ -93,5 +95,24 @@ export class ProductsService {
     return await this.prisma.product.delete({
       where: { id },
     });
+  }
+
+  async createComment(productId: number, createCommentDto: CreateCommentDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Produto não encontrado');
+    }
+
+    const comment = await this.prisma.comment.create({
+      data: {
+        ...createCommentDto,
+        product: { connect: { id: productId } },
+      },
+    });
+
+    return comment;
   }
 }
