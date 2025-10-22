@@ -24,6 +24,12 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
+  @IsString()
+  brand: string;
+
+  @IsString()
+  category: string;
+
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   price: number;

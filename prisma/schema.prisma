@@ -26,6 +26,8 @@ model Product {
   id          Int      @id @default(autoincrement())
   name        String
   description String
+  brand       String @default("")
+  category    String @default("")
   techInfo   Json
   price       Float
   imageUrl    String
@@ -33,6 +35,8 @@ model Product {
   isOffer  Boolean  @default(false)
   priceOffer Float?   
   popularProduct Boolean  @default(false)
+  recomendedProduct Boolean  @default(false)
+  similarProduct Json[] @default([])
   comments   Comment[]
 }
 
