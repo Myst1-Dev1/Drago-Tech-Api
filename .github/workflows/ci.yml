@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Node.js CI/CD
 
 on:
   push:
@@ -13,21 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🧩 Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: Run tests
+      - name: 🧪 Run tests
         run: npm test
 
-      - name: Build project
+      - name: 🏗️ Build project
         run: npm run build
 
   deploy:
@@ -35,14 +35,32 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout repository
+      - name: 🧩 Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up SSH
+      - name: 🔐 Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy to VPS
+      - name: 🚀 Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no root@109.205.176.205 "cd /www/wwwroot/lab.mystdev.com.br/api/Drago-Tech-Api && git pull origin main && npm install && pm2 restart app"
+          echo "🔄 Deploying to VPS..."
+          ssh -o StrictHostKeyChecking=no root@109.205.176.205 "
+            set -e
+            echo '📁 Acessando diretório do projeto...'
+            cd /www/wwwroot/lab.mystdev.com.br/api/Drago-Tech-Api
+
+            echo '🧹 Limpando e sincronizando repositório...'
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+
+            echo '📦 Instalando dependências...'
+            npm install --force
+
+            echo '🔁 Reiniciando aplicação com PM2...'
+            pm2 restart app || pm2 start npm --name 'app' -- run start
+
+            echo '✅ Deploy finalizado com sucesso!'
+          "
