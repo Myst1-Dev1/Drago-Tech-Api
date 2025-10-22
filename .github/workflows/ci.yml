@@ -45,4 +45,4 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no username@your-vps-ip "cd /caminho/do/seu/projeto && git pull origin main && npm install && pm2 restart app"
+          ssh -o StrictHostKeyChecking=no root@109.205.176.205 "cd /www/wwwroot/lab.mystdev.com.br/api/Drago-Tech-Api && git pull origin main && npm install && pm2 restart app"
