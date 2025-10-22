@@ -18,10 +18,10 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileUploadService } from '../file-upload/file-upload.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from '../auth/public.decorator';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
