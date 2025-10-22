@@ -60,7 +60,7 @@ jobs:
             npm install --force
 
             echo '🔁 Reiniciando aplicação com PM2...'
-            pm2 restart app || pm2 start npm --name 'app' -- run start
+            pm2 restart drago-tech || pm2 start npm --name 'drago-tech' -- run start
 
             echo '✅ Deploy finalizado com sucesso!'
           "
