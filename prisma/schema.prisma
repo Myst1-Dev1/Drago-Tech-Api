@@ -20,9 +20,9 @@ model User {
   name      String
   address   String
   zipCode   String
-  phone     String
-  state     String
-  city      String
+  phone     String @default("")
+  state     String @default("")
+  city      String @default("")
 }
 
 model Product {
