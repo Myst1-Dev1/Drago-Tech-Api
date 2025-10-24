@@ -1,6 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 //teste
-import { IsEmail, IsNotEmpty, IsString, IsOptional, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Email invalido' })
