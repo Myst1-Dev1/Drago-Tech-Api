@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsArray,
   ValidateNested,
+  IsBoolean,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
@@ -53,6 +54,23 @@ export class CreateProductDto {
     return value;
   })
   techInfo?: TechInfoItem[];
+
+  @IsOptional()
+  @IsBoolean()
+  popularProduct?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  recomendedProduct?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isOffer?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  priceOffer: number;
 
   @IsOptional()
   @IsArray()
