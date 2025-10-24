@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 //teste
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Email invalido' })
@@ -24,13 +24,16 @@ export class RegisterDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   phone: string;
 
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   city: string;
 
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   state: string;
 }
