@@ -17,4 +17,13 @@ export class RegisterDto {
 
   @IsNotEmpty()
   zipCode: string;
+
+  @IsNotEmpty()
+  phone: string;
+
+  @IsNotEmpty()
+  city: string;
+
+  @IsNotEmpty()
+  state: string;
 }
