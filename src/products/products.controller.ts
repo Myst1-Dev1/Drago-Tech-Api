@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -40,6 +41,44 @@ export class ProductsController {
       { name: 'relatedImages', maxCount: 5 },
     ]),
   )
+  // async create(
+  //   @UploadedFiles()
+  //   files: {
+  //     image?: Express.Multer.File[];
+  //     relatedImages?: Express.Multer.File[];
+  //   },
+  //   @Body() createProductDto: CreateProductDto,
+  // ) {
+  //   const mainImage = files.image?.[0];
+  //   if (!mainImage) {
+  //     throw new BadRequestException('Main image is required');
+  //   }
+
+  //   const uploadedMain = await this.fileUploadService.uploadImage(mainImage);
+
+  //   let techInfoParsed: { techInfoTitle: string; techInfoValue: string }[] = [];
+  //   if (createProductDto.techInfo) {
+  //     if (typeof createProductDto.techInfo === 'string') {
+  //       techInfoParsed = JSON.parse(createProductDto.techInfo);
+  //     } else {
+  //       techInfoParsed = createProductDto.techInfo;
+  //     }
+  //   }
+
+  //   const relatedFiles = files.relatedImages || [];
+  //   const uploadedRelated = relatedFiles.length
+  //     ? await Promise.all(
+  //         relatedFiles.map((file) => this.fileUploadService.uploadImage(file)),
+  //       )
+  //     : [];
+
+  //   return this.productsService.create(
+  //     createProductDto,
+  //     uploadedMain.secure_url,
+  //     uploadedRelated.map((u) => u.secure_url),
+  //     techInfoParsed,
+  //   );
+  // }
   async create(
     @UploadedFiles()
     files: {
@@ -58,7 +97,11 @@ export class ProductsController {
     let techInfoParsed: { techInfoTitle: string; techInfoValue: string }[] = [];
     if (createProductDto.techInfo) {
       if (typeof createProductDto.techInfo === 'string') {
-        techInfoParsed = JSON.parse(createProductDto.techInfo);
+        try {
+          techInfoParsed = JSON.parse(createProductDto.techInfo);
+        } catch (e: any) {
+          throw new BadRequestException('TechInfo format is invalid JSON');
+        }
       } else {
         techInfoParsed = createProductDto.techInfo;
       }
