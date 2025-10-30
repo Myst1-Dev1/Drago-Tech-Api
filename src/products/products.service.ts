@@ -10,8 +10,6 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  // products.service.ts
-
   async create(
     createProductDto: CreateProductDto,
     imageUrl: string,
@@ -34,6 +32,10 @@ export class ProductsService {
 
         price: Number(productData.price),
         priceOffer: priceOfferValue,
+
+        isOffer: Boolean(productData.isOffer),
+        recomendedProduct: Boolean(productData.recomendedProduct),
+        popularProduct: Boolean(productData.popularProduct),
 
         imageUrl,
         relatedImages,
