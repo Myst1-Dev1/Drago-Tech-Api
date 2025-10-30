@@ -10,16 +10,31 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
+  // products.service.ts
+
   async create(
     createProductDto: CreateProductDto,
     imageUrl: string,
     relatedImages: string[] = [],
     techInfo: { techInfoTitle: string; techInfoValue: string }[] = [],
   ) {
+    const productData = { ...createProductDto };
+
+    const priceOfferValue =
+      productData.priceOffer === undefined ||
+      isNaN(productData.priceOffer as number)
+        ? null
+        : Number(productData.priceOffer);
+
+    delete productData.priceOffer;
+
     return this.prisma.product.create({
       data: {
-        ...createProductDto,
-        price: Number(createProductDto.price),
+        ...productData,
+
+        price: Number(productData.price),
+        priceOffer: priceOfferValue,
+
         imageUrl,
         relatedImages,
         techInfo,
