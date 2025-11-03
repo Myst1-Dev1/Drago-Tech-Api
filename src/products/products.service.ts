@@ -33,10 +33,6 @@ export class ProductsService {
         price: Number(productData.price),
         priceOffer: priceOfferValue,
 
-        isOffer: Boolean(productData.isOffer),
-        recomendedProduct: Boolean(productData.recomendedProduct),
-        popularProduct: Boolean(productData.popularProduct),
-
         imageUrl,
         relatedImages,
         techInfo,
