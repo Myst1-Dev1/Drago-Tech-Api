@@ -31,7 +31,6 @@ export class CreateProductDto {
   @IsString()
   category: string;
 
-  // ✅ Preço principal: Já está correto, converte a string para number
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   price: number;
@@ -40,7 +39,6 @@ export class CreateProductDto {
   @IsString()
   imageUrl?: string;
 
-  // ✅ TechInfo: A lógica de parsing JSON para array está correta para FormData.
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -57,40 +55,51 @@ export class CreateProductDto {
   })
   techInfo?: TechInfoItem[];
 
-  // 🟢 CORREÇÃO: Transforma a string de FormData ('true', 'false', 'on') em boolean nativo
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === 'on')
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true' || value === 'on';
+    }
+    return false;
+  })
   @IsBoolean()
   popularProduct?: boolean;
 
-  // 🟢 CORREÇÃO: Transforma a string de FormData ('true', 'false', 'on') em boolean nativo
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === 'on')
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true' || value === 'on';
+    }
+    return false;
+  })
   @IsBoolean()
   recomendedProduct?: boolean;
 
-  // 🟢 CORREÇÃO: Transforma a string de FormData ('true', 'false', 'on') em boolean nativo
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === 'on')
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true' || value === 'on';
+    }
+    return false;
+  })
   @IsBoolean()
   isOffer?: boolean;
 
-  // 🟢 CORREÇÃO: Lógica para tratar valor vazio (null) ou string numérica (number)
   @IsOptional()
   @Transform(({ value }) => {
-    // Se a string for vazia ou nula, retorna null para o campo opcional
     if (!value || String(value).trim() === '') return null;
 
-    // Caso contrário, tenta converter para número
     const num = parseFloat(value);
-    // Verifica se a conversão foi bem-sucedida, senão retorna null
     return isNaN(num) ? null : num;
   })
   @IsNumber(
     { maxDecimalPlaces: 2 },
     { message: 'priceOffer must be a valid number' },
   )
-  priceOffer?: number | null; // Tipagem ajustada para aceitar null
+  priceOffer?: number | null;
 
   @IsOptional()
   @IsArray()
