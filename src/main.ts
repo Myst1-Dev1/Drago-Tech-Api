@@ -12,7 +12,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalPipes(new ValidationPipe());
+  // app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT ?? 4011);
 }
 bootstrap();
