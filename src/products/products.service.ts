@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,6 +17,16 @@ export class ProductsService {
     relatedImages: string[] = [],
     techInfo: { techInfoTitle: string; techInfoValue: string }[] = [],
   ) {
+    const booleanFields = ['isOffer', 'recomendedProduct', 'popularProduct'];
+
+    booleanFields.forEach((field) => {
+      if (createProductDto[field] !== undefined) {
+        createProductDto[field] =
+          createProductDto[field] === 'true' ||
+          createProductDto[field] === true;
+      }
+    });
+
     const productData = { ...createProductDto };
 
     const priceOfferValue =
@@ -52,10 +61,16 @@ export class ProductsService {
     const existingProduct = await this.prisma.product.findUnique({
       where: { id },
     });
+    if (!existingProduct) throw new NotFoundException('Produto não encontrado');
 
-    if (!existingProduct) {
-      throw new NotFoundException('Produto não encontrado');
-    }
+    const booleanFields = ['isOffer', 'recomendedProduct', 'popularProduct'];
+    booleanFields.forEach((field) => {
+      if (updateProductDto[field] !== undefined) {
+        updateProductDto[field] =
+          updateProductDto[field] === 'true' ||
+          updateProductDto[field] === true;
+      }
+    });
 
     const dataToUpdate: Prisma.ProductUpdateInput | any = {
       ...updateProductDto,
@@ -69,15 +84,6 @@ export class ProductsService {
           ? existingProduct.price
           : Number(updateProductDto.price),
     };
-
-    if (
-      updateProductDto.price === undefined ||
-      updateProductDto.price === null
-    ) {
-      dataToUpdate.price = existingProduct.price;
-    } else {
-      dataToUpdate.price = Number(updateProductDto.price);
-    }
 
     return this.prisma.product.update({
       where: { id },
