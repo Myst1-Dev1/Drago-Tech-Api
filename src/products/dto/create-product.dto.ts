@@ -10,6 +10,16 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
+function toBoolean(value: unknown): boolean {
+  if (Array.isArray(value)) value = value[0];
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const val = value.toLowerCase().trim();
+    return val === 'true' || val === 'on';
+  }
+  return false;
+}
+
 class TechInfoItem {
   @IsString()
   techInfoTitle: string;
@@ -56,35 +66,17 @@ export class CreateProductDto {
   techInfo?: TechInfoItem[];
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-      return value.toLowerCase() === 'true' || value === 'on';
-    }
-    return false;
-  })
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   popularProduct?: boolean;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-      return value.toLowerCase() === 'true' || value === 'on';
-    }
-    return false;
-  })
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   recomendedProduct?: boolean;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-      return value.toLowerCase() === 'true' || value === 'on';
-    }
-    return false;
-  })
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   isOffer?: boolean;
 
