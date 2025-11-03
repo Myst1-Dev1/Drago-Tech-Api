@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -5,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -55,13 +57,17 @@ export class ProductsService {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    const dataToUpdate: any = {
+    const dataToUpdate: Prisma.ProductUpdateInput | any = {
       ...updateProductDto,
       imageUrl: imageUrl ?? existingProduct.imageUrl,
       relatedImages: relatedImages.length
         ? relatedImages
         : existingProduct.relatedImages,
       techInfo: techInfo.length ? techInfo : existingProduct.techInfo,
+      price:
+        updateProductDto.price === undefined || updateProductDto.price === null
+          ? existingProduct.price
+          : Number(updateProductDto.price),
     };
 
     if (
