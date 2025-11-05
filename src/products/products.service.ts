@@ -140,4 +140,58 @@ export class ProductsService {
 
     return comment;
   }
+
+  async toggleFavorite(userId: number, productId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: Number(userId) },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const favorites: number[] = Array.isArray(user.favorites)
+      ? (user.favorites as number[])
+      : [];
+
+    const isFavorite = favorites.includes(productId);
+
+    let updatedFavorites: number[];
+
+    if (isFavorite) {
+      updatedFavorites = favorites.filter((id) => id !== productId);
+    } else {
+      updatedFavorites = [...favorites, productId];
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { favorites: updatedFavorites },
+    });
+
+    const favoriteProducts = await this.prisma.product.findMany({
+      where: {
+        id: {
+          in: updatedFavorites,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        imageUrl: true,
+        description: true,
+      },
+    });
+
+    return {
+      message: isFavorite
+        ? 'Produto removido dos favoritos'
+        : 'Produto adicionado aos favoritos',
+      user: {
+        ...updatedUser,
+        favorites: favoriteProducts,
+      },
+    };
+  }
 }

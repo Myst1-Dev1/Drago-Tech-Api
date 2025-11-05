@@ -46,6 +46,8 @@ export class AuthService {
         state,
         city,
         phone,
+        favorites: [],
+        orders: [],
       },
     });
 

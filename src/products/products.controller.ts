@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
@@ -15,6 +16,7 @@ import {
   UseGuards,
   UseInterceptors,
   Patch,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -41,44 +43,6 @@ export class ProductsController {
       { name: 'relatedImages', maxCount: 5 },
     ]),
   )
-  // async create(
-  //   @UploadedFiles()
-  //   files: {
-  //     image?: Express.Multer.File[];
-  //     relatedImages?: Express.Multer.File[];
-  //   },
-  //   @Body() createProductDto: CreateProductDto,
-  // ) {
-  //   const mainImage = files.image?.[0];
-  //   if (!mainImage) {
-  //     throw new BadRequestException('Main image is required');
-  //   }
-
-  //   const uploadedMain = await this.fileUploadService.uploadImage(mainImage);
-
-  //   let techInfoParsed: { techInfoTitle: string; techInfoValue: string }[] = [];
-  //   if (createProductDto.techInfo) {
-  //     if (typeof createProductDto.techInfo === 'string') {
-  //       techInfoParsed = JSON.parse(createProductDto.techInfo);
-  //     } else {
-  //       techInfoParsed = createProductDto.techInfo;
-  //     }
-  //   }
-
-  //   const relatedFiles = files.relatedImages || [];
-  //   const uploadedRelated = relatedFiles.length
-  //     ? await Promise.all(
-  //         relatedFiles.map((file) => this.fileUploadService.uploadImage(file)),
-  //       )
-  //     : [];
-
-  //   return this.productsService.create(
-  //     createProductDto,
-  //     uploadedMain.secure_url,
-  //     uploadedRelated.map((u) => u.secure_url),
-  //     techInfoParsed,
-  //   );
-  // }
   async create(
     @UploadedFiles()
     files: {
@@ -194,5 +158,14 @@ export class ProductsController {
     @Body() createCommentDto: CreateCommentDto,
   ) {
     return this.productsService.createComment(+id, createCommentDto);
+  }
+
+  @Post('favorite/:id')
+  async toggleFavorite(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.userId;
+    console.log(userId);
+    const productId = Number(id);
+
+    return this.productsService.toggleFavorite(userId, productId);
   }
 }

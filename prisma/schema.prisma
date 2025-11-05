@@ -23,6 +23,8 @@ model User {
   phone     String @default("")
   state     String @default("")
   city      String @default("")
+  favorites Json[] @default([])
+  orders    Json[] @default([])
 }
 
 model Product {
