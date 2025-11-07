@@ -17,6 +17,7 @@ export class CartController {
     @Body()
     body: {
       products: number[];
+      paymentMethod: string;
       shippingInfo?: {
         state: string;
         city: string;
@@ -30,6 +31,7 @@ export class CartController {
     return this.cartService.createOrder(
       userId,
       body.products,
+      body.paymentMethod,
       body.shippingInfo,
     );
   }

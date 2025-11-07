@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   BadRequestException,
@@ -13,6 +14,7 @@ export class CartService {
   async createOrder(
     userId: number,
     productIds: number[],
+    paymentMethod: string,
     shippingInfo?: {
       state: string;
       city: string;
@@ -45,8 +47,28 @@ export class CartService {
 
     const total = products.reduce((acc, p) => acc + p.price, 0);
 
-    const paymentApproved = true;
-    if (!paymentApproved) {
+    // ✅ Payload enviado para o n8n
+    const paymentPayload = {
+      userId,
+      total,
+      products,
+      paymentMethod,
+      shippingInfo: shippingInfo || {
+        state: user.state,
+        city: user.city,
+        zipCode: user.zipCode,
+        neighborhood: user.address,
+        reference: '',
+      },
+    };
+
+    const paymentResponse = await fetch(process.env.N8N_WEBHOOK_URL!, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paymentPayload),
+    }).then((res) => res.json());
+
+    if (paymentResponse.status !== 'approved') {
       throw new BadRequestException('Pagamento não aprovado');
     }
 
@@ -55,22 +77,15 @@ export class CartService {
       items: products,
       total,
       date: new Date().toISOString(),
-      shippingInfo: shippingInfo || {
-        state: user.state,
-        city: user.city,
-        zipCode: user.zipCode,
-        neighborhood: '',
-        reference: '',
-      },
+      shippingInfo: paymentPayload.shippingInfo,
+      transactionId: paymentResponse.transactionId,
     };
-
-    const updatedOrders = Array.isArray(user.orders)
-      ? [...user.orders, newOrder]
-      : [newOrder];
 
     await this.prisma.user.update({
       where: { id: userId },
-      data: { orders: updatedOrders as any },
+      data: {
+        orders: [...(user.orders as any[]), newOrder],
+      },
     });
 
     return {
