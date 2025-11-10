@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
@@ -14,7 +15,6 @@ export class CartService {
   async createOrder(
     userId: number,
     productIds: number[],
-    paymentMethod: string,
     shippingInfo?: {
       state: string;
       city: string;
@@ -47,12 +47,10 @@ export class CartService {
 
     const total = products.reduce((acc, p) => acc + p.price, 0);
 
-    // ✅ Payload enviado para o n8n
     const paymentPayload = {
       userId,
       total,
       products,
-      paymentMethod,
       shippingInfo: shippingInfo || {
         state: user.state,
         city: user.city,
@@ -66,10 +64,22 @@ export class CartService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(paymentPayload),
-    }).then((res) => res.json());
+    });
 
-    if (paymentResponse.status !== 'approved') {
-      throw new BadRequestException('Pagamento não aprovado');
+    let data: any;
+
+    try {
+      data = await paymentResponse.json();
+    } catch (e) {
+      throw new BadRequestException(
+        'Erro ao interpretar retorno do N8N. O JSON veio vazio / mal formatado.',
+      );
+    }
+
+    if (!data?.status || !data?.transactionId) {
+      throw new BadRequestException(
+        `Retorno inválido do N8N. Esperado: { status: "approved", transactionId: "123" }`,
+      );
     }
 
     const newOrder = {
@@ -78,7 +88,7 @@ export class CartService {
       total,
       date: new Date().toISOString(),
       shippingInfo: paymentPayload.shippingInfo,
-      transactionId: paymentResponse.transactionId,
+      transactionId: data.transactionId,
     };
 
     await this.prisma.user.update({

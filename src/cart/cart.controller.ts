@@ -31,7 +31,6 @@ export class CartController {
     return this.cartService.createOrder(
       userId,
       body.products,
-      body.paymentMethod,
       body.shippingInfo,
     );
   }
