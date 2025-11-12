@@ -177,10 +177,10 @@ export class ProductsService {
       },
       select: {
         id: true,
-        // name: true,
-        // price: true,
-        // imageUrl: true,
-        // description: true,
+        name: true,
+        price: true,
+        imageUrl: true,
+        description: true,
       },
     });
 
