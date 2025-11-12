@@ -87,8 +87,30 @@ export class AuthService {
       where: { id },
     });
 
-    if (!user) throw new NotFoundException('Produto não encontado');
+    if (!user) throw new NotFoundException('Usuário não encontrado');
 
-    return user;
+    const favoriteIds = Array.isArray(user.favorites)
+      ? (user.favorites as number[])
+      : [];
+
+    const favoriteProducts = await this.prisma.product.findMany({
+      where: {
+        id: { in: favoriteIds },
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        imageUrl: true,
+        description: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = user;
+
+    return {
+      ...userWithoutPassword,
+      favorites: favoriteProducts,
+    };
   }
 }
